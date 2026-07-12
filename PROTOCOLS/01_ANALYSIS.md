@@ -7,18 +7,29 @@
 ## Вход
 
 - Целевой репозиторий (локальная копия)
-- `metaagent-request.md` (конфигурация сессии: глубина, функции)
+- `metaagent-request.md` (конфигурация сессии: глубина, функции) — или auto-generated
 - `.agent/checkpoints.json` (фаза analysis: pending)
 
 ## Шаги
 
 ### 0.0. Чтение конфигурации сессии
 
-Прочитать `metaagent-request.md`. Извлечь:
-- **config.depth** — глубина проработки (1-10). Определяет, какие дополнительные фазы/протоколы будут задействованы.
-- **config.functions** — какие функции включены (adr, alternative_arch, red_team, risk_register, invariant_tests, layer_structure).
+Прочитать config из checkpoints.json (установлен на фазе INIT через `00_CONFIG.md`).
 
-Записать конфигурацию в checkpoints.json:
+Если config отсутствует или неполный — применить default:
+
+```json
+{
+  "depth": 4,
+  "design": { "adr": false, "alternative_arch": false },
+  "red_team": false,
+  "risk_register": false,
+  "decomposition": { "invariant_tests": false },
+  "handoff": { "layer_structure": false }
+}
+```
+
+Записать (или подтвердить) конфигурацию в checkpoints.json:
 ```json
 "config": {
   "depth": 6,

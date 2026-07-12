@@ -1,6 +1,7 @@
 # MetaAgent Request
-
-Заполните перед запуском MetaAgent.
+# Для ручного заполнения перед запуском MetaAgent.
+# Если файл отсутствует — MetaAgent проведёт интервью (PROTOCOLS/00_CONFIG.md).
+# Ответьте "default" на любой вопрос — будет использовано значение по умолчанию.
 
 ## Параметры сессии
 
@@ -21,10 +22,10 @@
 | Уровень | Название | Описание |
 |---|---|---|
 | 1-2 | Scaffold | Только структура проекта + пустые модули |
-| 3-4 | Light | Быстрый анализ, минимальный дизайн, задачи без AC |
-| 5-6 | Standard | (default) Полный ANALYSIS→DESIGN→DECOMP→SETUP→HANDOFF |
+| 3-4 | Light | (default) Быстрый дизайн + задачи без расширений |
+| 5-6 | Standard | Полный ANALYSIS→DESIGN→DECOMP→SETUP→HANDOFF |
 | 7-8 | Deep | Standard + ADR, Risk Register, Alternative Architecture |
-| 9-10 | Maximum | Deep + Red Team Review, Executable Invariants, полный decision log |
+| 9-10 | Maximum | Deep + Red Team Review, Executable Invariants |
 
 ## Цель
 

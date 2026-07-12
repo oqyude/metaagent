@@ -32,8 +32,8 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 | Уровень | Название | Что выполняется |
 |---|---|---|
 | 1-2 | Scaffold | INIT → ANALYSIS → SETUP (только структура, без реализации) |
-| 3-4 | Light | + DESIGN (без ADR/альтернатив), DECOMPOSITION (без инвариантов), HANDOFF |
-| 5-6 | Standard | (по умолчанию) полный цикл с базовым DESIGN и DECOMPOSITION |
+| 3-4 | Light | + DESIGN (без ADR/альтернатив), DECOMPOSITION (без инвариантов), HANDOFF — **(default)** |
+| 5-6 | Standard | полный цикл с базовым DESIGN и DECOMPOSITION |
 | 7-8 | Deep | + ADR, Alternative Architecture, Risk Register, Invariant Tests |
 | 9-10 | Maximum | + Red Team Review, Executable Invariants для всех ADR |
 
@@ -52,11 +52,18 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ## Фаза 0: INIT
 
-**Вход:** целевой репозиторий + metaagent-request.md.
+**Вход:** целевой репозиторий + опционально metaagent-request.md.
+
+**Протокол:** `PROTOCOLS/00_CONFIG.md`
 
 **Действия:**
 - Склонировать/открыть целевой репозиторий
-- Прочитать `metaagent-request.md` (если есть) — извлечь config
+- Прочитать `PROTOCOLS/00_CONFIG.md`
+- Выполнить 00_CONFIG:
+  - Если `metaagent-request.md` существует — прочитать config из него
+  - Если нет — провести интервью с пользователем (или принять `default`)
+  - Валидировать config относительно depth
+  - Если не было файла — создать `metaagent-request.md` с пометкой Auto-generated
 - Прочитать `PROTOCOLS/01_ANALYSIS.md`
 - Создать директорию `.agent/` в корне целевого репозитория
 - Инициализировать `.agent/checkpoints.json` (с config)
@@ -68,12 +75,12 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
   "goal": "<цель от пользователя>",
   "project_type": "pending",
   "config": {
-    "depth": 6,
-    "design": { "adr": true, "alternative_arch": true },
+    "depth": 4,
+    "design": { "adr": false, "alternative_arch": false },
     "red_team": false,
     "risk_register": false,
-    "decomposition": { "invariant_tests": true },
-    "handoff": { "layer_structure": true }
+    "decomposition": { "invariant_tests": false },
+    "handoff": { "layer_structure": false }
   },
   "phases": {
     "analysis": "pending",
@@ -94,12 +101,13 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ## Фаза 1: ANALYSE
 
-**Вход:** целевой репозиторий, metaagent-request.md, checkpoints.json (analysis: pending).
+**Вход:** целевой репозиторий, metaagent-request.md (или auto-generated), checkpoints.json (analysis: pending, config: from INIT).
 
 **Протокол:** `PROTOCOLS/01_ANALYSIS.md`
 
 **Действия:**
-- Прочитать config из checkpoints.json
+- Прочитать config из checkpoints.json (уже получен на INIT через 00_CONFIG)
+- Если config отсутствует — применить default config (depth=4) как fallback
 - Выполнить анализ репозитория по протоколу (определяет тип проекта)
 - Записать результат в `.agent/analysis-report.md`
 - Обновить checkpoints.json: `phases.analysis = "completed"`, `project_type = "existing" | "greenfield" | "scaffold"`

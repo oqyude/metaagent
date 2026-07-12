@@ -14,17 +14,26 @@
 
 ### Фаза INIT
 
-Мета-агент клонирует репозиторий, создаёт `.agent/`, пишет начальный чекпоинт:
+Мета-агент читает `metaagent-request.md`, клонирует репозиторий, создаёт `.agent/`, пишет начальный чекпоинт:
 
 ```json
 {
   "session_id": "ses_abc123",
   "target_repo": "/tmp/fastapi-app",
   "goal": "Добавить GET /health с тестами",
-  "project_type": "pending",
+  "project_type": "existing",
+  "config": {
+    "depth": 6,
+    "design": { "adr": false, "alternative_arch": false },
+    "red_team": false,
+    "risk_register": false,
+    "decomposition": { "invariant_tests": false },
+    "handoff": { "layer_structure": false }
+  },
   "phases": {
     "analysis": "pending",
     "design": "pending",
+    "red_team": "pending",
     "decomposition": "pending",
     "environment": "pending",
     "handoff": "pending"
@@ -122,9 +131,18 @@
   "session_id": "ses_abc123",
   "goal": "Добавить GET /health с тестами",
   "project_type": "existing",
+  "config": {
+    "depth": 6,
+    "design": { "adr": false, "alternative_arch": false },
+    "red_team": false,
+    "risk_register": false,
+    "decomposition": { "invariant_tests": false },
+    "handoff": { "layer_structure": false }
+  },
   "phases": {
     "analysis": "completed",
     "design": "skipped",
+    "red_team": "skipped",
     "decomposition": "completed",
     "environment": "completed",
     "handoff": "completed"
@@ -172,10 +190,19 @@ Tasks: 3 tasks ready
   "session_id": "ses_def456",
   "target_repo": "/tmp/cashflow-app",
   "goal": "Спроектировать и реализовать MVP сервиса прогнозирования денежных потоков",
-  "project_type": "pending",
+  "project_type": "greenfield",
+  "config": {
+    "depth": 7,
+    "design": { "adr": true, "alternative_arch": true },
+    "red_team": false,
+    "risk_register": true,
+    "decomposition": { "invariant_tests": true },
+    "handoff": { "layer_structure": true }
+  },
   "phases": {
     "analysis": "pending",
     "design": "pending",
+    "red_team": "pending",
     "decomposition": "pending",
     "environment": "pending",
     "handoff": "pending"
@@ -294,10 +321,12 @@ HANDOFF COMPLETE
 Session: ses_def456
 Target: /tmp/cashflow-app
 Type: greenfield
+Config: depth=7, adr=yes, risk_register=yes, invariant_tests=yes
 Tasks: 6 tasks ready
 
 Исполнительный агент может начинать с задачи T1 (init).
 Архитектурный план: .agent/design-report.md
+ADR: .agent/layer-1/adr/
 ```
 
 ---

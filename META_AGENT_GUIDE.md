@@ -3,22 +3,63 @@
 ## Жизненный цикл сессии
 
 ```
-INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → HANDOFF → EXIT
+metaagent-request.md
+        │
+        ▼
+INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CHECKPOINT)* → HANDOFF → EXIT
+                       │                        │
+                       ▼                        ▼
+                  ADR (опц.)            Invariant Tasks (опц.)
+                  Alt.Arch (опц.)
+                  Risk Register (опц.)
 ```
 
-Фазы выполняются **строго последовательно**. Фаза DESIGN выполняется только если тип проекта — `greenfield` или `scaffold`. Каждая фаза порождает артефакты в `.agent/` целевого репозитория.
+Фазы выполняются **строго последовательно**. Фаза DESIGN — только если project_type = greenfield/scaffold.
+Фаза RED_TEAM — только если config.red_team = yes.
+
+Все артефакты размещаются в `.agent/` целевого репозитория (с layer-структурой или плоские, в зависимости от config).
+
+---
+
+## Конфигурация сессии (metaagent-request.md)
+
+Перед запуском сессии пользователь заполняет `metaagent-request.md` (см. `TEMPLATES/metaagent-request.md`).
+
+Ключевые параметры:
+
+### Шкала глубины (depth 1-10)
+
+| Уровень | Название | Что выполняется |
+|---|---|---|
+| 1-2 | Scaffold | INIT → ANALYSIS → SETUP (только структура, без реализации) |
+| 3-4 | Light | + DESIGN (без ADR/альтернатив), DECOMPOSITION (без инвариантов), HANDOFF |
+| 5-6 | Standard | (по умолчанию) полный цикл с базовым DESIGN и DECOMPOSITION |
+| 7-8 | Deep | + ADR, Alternative Architecture, Risk Register, Invariant Tests |
+| 9-10 | Maximum | + Red Team Review, Executable Invariants для всех ADR |
+
+### Функции (таблица вкл/выкл)
+
+| Функция | Фаза | Глубина | Описание |
+|---|---|---|---|
+| adr | DESIGN | >=7 | Создание ADR для каждого ключевого решения |
+| alternative_arch | DESIGN | >=7 | Обязательное описание альтернативной архитектуры |
+| red_team | DESIGN (после) | >=9 | Red Team Review — попытка разрушить архитектуру |
+| risk_register | DESIGN | >=7 | Явный реестр допущений |
+| invariant_tests | DECOMPOSITION | >=7 | Задачи-инварианты для каждого ADR |
+| layer_structure | HANDOFF | любая | Организация .agent/ по слоям (layer-0..3) |
 
 ---
 
 ## Фаза 0: INIT
 
-**Вход:** целевой репозиторий (путь/URL) + цель от пользователя.
+**Вход:** целевой репозиторий + metaagent-request.md.
 
 **Действия:**
 - Склонировать/открыть целевой репозиторий
+- Прочитать `metaagent-request.md` (если есть) — извлечь config
 - Прочитать `PROTOCOLS/01_ANALYSIS.md`
 - Создать директорию `.agent/` в корне целевого репозитория
-- Инициализировать `.agent/checkpoints.json`
+- Инициализировать `.agent/checkpoints.json` (с config)
 
 ```json
 {
@@ -26,9 +67,18 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
   "target_repo": "<path>",
   "goal": "<цель от пользователя>",
   "project_type": "pending",
+  "config": {
+    "depth": 6,
+    "design": { "adr": true, "alternative_arch": true },
+    "red_team": false,
+    "risk_register": false,
+    "decomposition": { "invariant_tests": true },
+    "handoff": { "layer_structure": true }
+  },
   "phases": {
     "analysis": "pending",
     "design": "pending",
+    "red_team": "pending",
     "decomposition": "pending",
     "environment": "pending",
     "handoff": "pending"
@@ -38,24 +88,27 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
 }
 ```
 
-**Выход:** готовая `.agent/` + актуальный checkpoints.json.
+**Выход:** готовая `.agent/` + checkpoints.json с config.
 
 ---
 
 ## Фаза 1: ANALYSE
 
-**Вход:** целевой репозиторий, checkpoints.json (analysis: pending).
+**Вход:** целевой репозиторий, metaagent-request.md, checkpoints.json (analysis: pending).
 
 **Протокол:** `PROTOCOLS/01_ANALYSIS.md`
 
 **Действия:**
+- Прочитать config из checkpoints.json
 - Выполнить анализ репозитория по протоколу (определяет тип проекта)
 - Записать результат в `.agent/analysis-report.md`
 - Обновить checkpoints.json: `phases.analysis = "completed"`, `project_type = "existing" | "greenfield" | "scaffold"`
 
 **Выход:** `.agent/analysis-report.md`
 
-**Ветвление:** если `project_type = "greenfield"` или `"scaffold"` → далее фаза DESIGN. Если `"existing"` → DESIGN пропускается, сразу DECOMPOSITION.
+**Ветвление:**
+- `project_type = "greenfield"` или `"scaffold"` → далее фаза DESIGN
+- `project_type = "existing"` → DESIGN пропускается, сразу DECOMPOSITION
 
 ---
 
@@ -67,21 +120,46 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
 
 **Действия:**
 - Спроектировать архитектуру, модули, данные, интерфейсы
+- Если config.design.alternative_arch: описать альтернативную архитектуру
+- Если config.design.adr: создать ADR для каждого ключевого решения → `.agent/layer-1/adr/`
+- Если config.risk_register: создать `.agent/layer-1/risk-register.md`
 - Записать результат в `.agent/design-report.md`
 - Обновить checkpoints.json: `phases.design = "completed"`
 
-**Выход:** `.agent/design-report.md`
+**Ветвление:**
+- Если config.red_team = yes → следующая фаза RED_TEAM
+- Иначе → сразу DECOMPOSITION
+
+**Выход:** `.agent/design-report.md`, опционально `.agent/layer-1/adr/*.md`, `.agent/layer-1/risk-register.md`
+
+---
+
+## Фаза 2b: RED_TEAM (опциональная)
+
+**Вход:** design-report.md, ADR (опционально), checkpoints.json (design: completed).
+
+**Протокол:** `PROTOCOLS/02b_REDTEAM.md`
+
+**Действия:**
+- Выполнить Red Team Review по протоколу
+- Записать результат в `.agent/layer-1/red-team-report.md`
+- Дополнить risk-register.md (если существует)
+- Если найдены критические проблемы — исправить design-report
+- Обновить checkpoints.json: `phases.red_team = "completed"`
+
+**Выход:** `.agent/layer-1/red-team-report.md`
 
 ---
 
 ## Фаза 3: DECOMPOSITION
 
-**Вход:** analysis-report.md + опционально design-report.md + checkpoints.json (design: completed либо analysis: completed для existing).
+**Вход:** analysis-report.md + design-report.md (опционально) + ADR (опционально) + checkpoints.json.
 
 **Протокол:** `PROTOCOLS/03_DECOMPOSITION.md`
 
 **Действия:**
-- Выполнить декомпозицию цели (и дизайна, если есть) по протоколу
+- Разбить цель (и дизайн) на атомарные задачи
+- Если config.decomposition.invariant_tests: создать задачи-инварианты для каждого ADR
 - Записать манифест в `.agent/task-manifest.json` и `.agent/task-manifest.md`
 - Обновить checkpoints.json: `phases.decomposition = "completed"`, заполнить `tasks`
 
@@ -118,9 +196,18 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
   "target_repo": "<path>",
   "goal": "<цель>",
   "project_type": "existing | greenfield | scaffold",
+  "config": {
+    "depth": 6,
+    "design": { "adr": true, "alternative_arch": true },
+    "red_team": false,
+    "risk_register": false,
+    "decomposition": { "invariant_tests": true },
+    "handoff": { "layer_structure": true }
+  },
   "phases": {
     "analysis": "completed",
     "design": "completed",
+    "red_team": "skipped",
     "decomposition": "in_progress",
     "environment": "pending",
     "handoff": "pending"
@@ -136,6 +223,7 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
 ```
 
 `status` может быть: `pending`, `in_progress`, `completed`, `failed`, `skipped`.
+Фаза `red_team` может быть `skipped` если config.red_team = false.
 
 ---
 
@@ -146,10 +234,12 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
 **Протокол:** `PROTOCOLS/05_HANDOFF.md`
 
 **Действия:**
-- Выполнить передачу по протоколу
-- Записать `.agent/handoff-summary.md`
+- Выполнить валидацию всех артефактов
+- Если config.handoff.layer_structure: организовать `.agent/` по слоям
+- Записать `.agent/handoff-summary.md` (в layer-3 при layer_structure=yes)
+- Создать `.agent/session-summary.md` (в layer-0 при layer_structure=yes)
 - Обновить checkpoints.json: `phases.handoff = "completed"`
-- Сообщить пользователю/оркестратору: "Исполнительный агент готов к работе"
+- Сообщить пользователю/оркестратору
 
 **Выход:** `.agent/handoff-summary.md` — итоговый документ для исполнительного агента.
 
@@ -158,3 +248,34 @@ INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → 
 ## Фаза 7: EXIT
 
 Мета-агент завершает работу. Управление переходит к исполнительному агенту.
+
+---
+
+## Структура .agent/ (при layer_structure=yes)
+
+```
+.agent/
+  layer-0/
+    checkpoints.json            # всегда (ядро)
+    session-summary.md          # краткая сводка сессии
+  layer-1/                      # архитектурные решения (справочно)
+    adr/
+      001-технологический-стек.md
+      002-архитектурный-паттерн.md
+      ...
+    risk-register.md
+    red-team-report.md
+  layer-2/                      # дизайн и анализ (справочно)
+    analysis-report.md
+    design-report.md
+  layer-3/                      # состояние исполнения
+    handoff-summary.md
+    task-manifest.json
+    task-manifest.md
+    baseline-test-report.log
+    setup-report.log
+```
+
+Исполнительный агент всегда начинает с layer-0 (checkpoints + session-summary),
+затем при необходимости обращается к layer-1 (ADR для понимания "почему"),
+layer-2 (детали дизайна), layer-3 (что было сделано).

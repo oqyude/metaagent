@@ -8,6 +8,9 @@
 
 - `.agent/analysis-report.md`
 - `.agent/design-report.md` (опционально — для greenfield/scaffold)
+- `.agent/layer-1/adr/*.md` (опционально)
+- `.agent/layer-1/risk-register.md` (опционально)
+- `metaagent-request.md` (конфигурация сессии)
 - Цель пользователя (из checkpoints.json)
 - `.agent/checkpoints.json` (фаза decomposition: pending)
 
@@ -56,6 +59,7 @@
 | `test` | Добавление/исправление тестов |
 | `fix` | Исправление бага |
 | `docs` | Документация |
+| `invariant` | Тест, проверяющий архитектурный инвариант (см. 3.7) |
 
 ### 3.5. Зелёная декомпозиция (для greenfield/scaffold)
 
@@ -73,6 +77,37 @@
 2. Потом те, чьи зависимости уже выполнены
 3. Последними — задачи с наибольшим числом зависимостей
 
+### 3.7. Executable Invariants (если config.invariant_tests = yes)
+
+Для каждого ADR (из layer-1/adr/) создать задачу типа `invariant` — тест, проверяющий архитектурное правило.
+
+**Правила превращения ADR в инварианты:**
+
+| ADR | Инвариант-тест |
+|---|---|
+| "Модуль X не зависит от Y" | `test_x_does_not_import_y.py` — import test |
+| "Слой Model не знает о CLI" | `test_model_layer_imports.py` — проверка import graph |
+| "Все исключения кастомные" | `test_custom_exceptions.py` — проверка hierarchy |
+| "Интерфейс репозитория не泄漏 implementation details" | `test_repository_interface.py` — ABC check |
+
+**Формат задачи-инварианта:**
+
+```json
+{
+  "id": "I1",
+  "title": "Инвариант: model не импортирует cli",
+  "type": "invariant",
+  "files": ["tests/invariants/test_layer_imports.py"],
+  "depends_on": ["T2"],
+  "acceptance_criteria": [
+    "Тест проверяет, что cashflow_model не импортирует cli, sync, engine",
+    "Тест проходит на пустом проекте (до реализации функциональности)"
+  ]
+}
+```
+
+Инварианты размещаются в `tests/invariants/` и запускаются вместе с основными тестами.
+
 ## Выход
 
 - `.agent/task-manifest.json` — по схеме `TEMPLATES/task-manifest.json`
@@ -88,5 +123,6 @@
 - [ ] Для каждой задачи указаны acceptance criteria
 - [ ] Для каждой задачи указаны affected files
 - [ ] Зависимости между задачами корректны (нет циклов)
+- [ ] Invariant-задачи созданы для каждого ADR (если config требует)
 - [ ] `.agent/task-manifest.json` и `.agent/task-manifest.md` созданы
 - [ ] checkpoints.json обновлён

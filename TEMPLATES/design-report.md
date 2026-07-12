@@ -82,7 +82,31 @@
 - **Mock-стратегия:** {{ mock_strategy }}
 - **Команда запуска:** `{{ test_command }}`
 
-## 8. Предварительная группировка задач
+## 8. Alternative Architecture (если применимо)
+
+| Критерий | Выбранная архитектура | Альтернатива |
+|---|---|---|
+| Название | {{ chosen_arch }} | {{ alt_arch }} |
+| Сложность | {{ chosen_complexity }} | {{ alt_complexity }} |
+| Почему не выбрана | — | {{ alt_rejection_reason }} |
+
+## 9. ADR Reference (если применимо)
+
+| ID | Решение | Файл |
+|---|---|---|
+{% for adr in adr_list %}
+| {{ adr.id }} | {{ adr.title }} | `{{ adr.path }}` |
+{% endfor %}
+
+## 10. Risk Register (если применимо)
+
+| # | Assumption | Impact | Mitigation |
+|---|---|---|---|
+{% for risk in risk_list %}
+| {{ risk.id }} | {{ risk.assumption }} | {{ risk.impact }} | {{ risk.mitigation }} |
+{% endfor %}
+
+## 11. Предварительная группировка задач
 
 | Задача | Описание | Тип |
 |---|---|---|
@@ -91,6 +115,6 @@
 | T3 | {{ task_3 }} | feature |
 | T4 | {{ task_4 }} | test |
 
-## 9. Примечания
+## 12. Примечания
 
 {{ notes }}

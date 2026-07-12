@@ -7,6 +7,8 @@
 - **Goal:** {{ goal }}
 - **Date:** {{ date }}
 - **Duration:** {{ duration }}
+- **Depth:** {{ depth }}
+- **Config:** {{ config_summary }}
 
 ## Repo Summary
 
@@ -16,6 +18,22 @@
 
 - **Type:** {{ project_type }}
 - **Design report:** {% if project_type == "greenfield" or project_type == "scaffold" %}`.agent/design-report.md`{% else %}—{% endif %}
+
+## ADR Summary (если применимо)
+
+{% if adr_count > 0 %}
+Создано ADR: {{ adr_count }}
+{% for adr in adr_list %}
+- `{{ adr.path }}` — {{ adr.title }}
+{% endfor %}
+{% endif %}
+
+## Risk Register (если применимо)
+
+{% if risk_count > 0 %}
+Задокументировано допущений: {{ risk_count }}
+Наиболее критичное: {{ top_risk }}
+{% endif %}
 
 ## Environment Status
 

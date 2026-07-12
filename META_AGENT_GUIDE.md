@@ -57,6 +57,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/00_CONFIG.md`
 
 **Действия:**
+- Прочитать `VERSION` — текущая версия MetaAgent
 - Склонировать/открыть целевой репозиторий
 - Прочитать `PROTOCOLS/00_CONFIG.md`
 - Выполнить 00_CONFIG:
@@ -64,12 +65,14 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
   - Если нет — провести интервью с пользователем (или принять `default`)
   - Валидировать config относительно depth
   - Если не было файла — создать `metaagent-request.md` с пометкой Auto-generated
+- **Проверить версию:** если `.agent/checkpoints.json` существует → выполнить `PROTOCOLS/00_MIGRATE.md` (сравнить metaagent_version, применить миграцию при необходимости)
 - Прочитать `PROTOCOLS/01_ANALYSIS.md`
-- Создать директорию `.agent/` в корне целевого репозитория
-- Инициализировать `.agent/checkpoints.json` (с config)
+- Создать директорию `.agent/` в корне целевого репозитория (если нет)
+- Инициализировать `.agent/checkpoints.json` с `metaagent_version` (если не существовал)
 
 ```json
 {
+  "metaagent_version": "1.0.0",
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель от пользователя>",
@@ -95,7 +98,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 }
 ```
 
-**Выход:** готовая `.agent/` + checkpoints.json с config.
+**Выход:** готовая `.agent/` + checkpoints.json с metaagent_version и config.
 
 ---
 
@@ -200,6 +203,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ```json
 {
+  "metaagent_version": "1.0.0",
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель>",

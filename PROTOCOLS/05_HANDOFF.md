@@ -1,4 +1,4 @@
-# Протокол 04: Передача исполнительному агенту (HANDOFF)
+# Протокол 05: Передача исполнительному агенту (HANDOFF)
 
 ## Цель
 
@@ -7,6 +7,7 @@
 ## Вход
 
 - `.agent/analysis-report.md`
+- `.agent/design-report.md` (опционально, для greenfield)
 - `.agent/task-manifest.json`
 - `.agent/task-manifest.md`
 - `.agent/baseline-test-report.log`
@@ -14,40 +15,42 @@
 
 ## Шаги
 
-### 4.1. Валидация
+### 5.1. Валидация
 
 Перед передачей проверить:
 
-- [ ] Все фазы (analysis, decomposition, environment) отмечены как `completed` в checkpoints.json
+- [ ] Все фазы отмечены как `completed` в checkpoints.json
 - [ ] `.agent/` содержит все обязательные файлы:
   - `checkpoints.json`
   - `analysis-report.md`
   - `task-manifest.json` + `task-manifest.md`
   - `baseline-test-report.log`
   - `setup-report.log`
+- [ ] Для greenfield: `design-report.md` присутствует
 - [ ] В task-manifest.json нет циклических зависимостей
 - [ ] Все acceptance criteria сформулированы измеримо
 - [ ] Для каждой задачи указаны affected files
 - [ ] В репозитории нет незакоммиченных изменений (кроме `.agent/`)
 
-### 4.2. Создать handoff-summary.md
+### 5.2. Создать handoff-summary.md
 
 Заполнить по шаблону `TEMPLATES/handoff-summary.md`:
 
 - **Session Info** — ID, цель, дата
 - **Repo Summary** — краткая выжимка из analysis-report
 - **Environment Status** — результат сборки и тестов
+- **Design Summary** (если есть design-report) — ключевые архитектурные решения
 - **Task Overview** — количество задач, типы, список
 - **Next Steps** — с какой задачи начинать исполнительному агенту
 - **Caveats** — известные проблемы, ограничения, неясные моменты
 - **Checkpoints** — актуальное состояние чекпоинтов
 
-### 4.3. Финализировать checkpoints
+### 5.3. Финализировать checkpoints
 
 - Отметить `phases.handoff = "completed"`
 - Записать финальный `last_updated`
 
-### 4.4. Сигнал
+### 5.4. Сигнал
 
 Сообщить пользователю/оркестратору:
 
@@ -56,6 +59,7 @@ HANDOFF COMPLETE
 
 Session: <session_id>
 Target: <target_repo>
+Type: <existing | greenfield>
 Tasks: <count> tasks ready
 
 Исполнительный агент может начинать с задачи <T1>.
@@ -72,7 +76,8 @@ Tasks: <count> tasks ready
 5. **`handoff-summary.md`** — итоговая сводка
 6. **`checkpoints.json`** — актуальное состояние (исполнительный агент будет его обновлять)
 7. **`analysis-report.md`** — полный анализ репозитория (справочно)
-8. **`baseline-test-report.log`** — baseline тестов (чтобы не сломать существующее)
+8. **`design-report.md`** (только для greenfield) — архитектурный план
+9. **`baseline-test-report.log`** — baseline тестов (чтобы не сломать существующее)
 
 ## Выход
 
@@ -82,6 +87,6 @@ Tasks: <count> tasks ready
 ## Критерии завершения
 
 - [ ] Все артефакты на месте
-- [ ] handoff-summary.md заполнен
+- [ ] handoff-summary.md заполнен (включая design summary, если применимо)
 - [ ] checkpoints.json финализирован
 - [ ] Сигнал отправлен пользователю/оркестратору

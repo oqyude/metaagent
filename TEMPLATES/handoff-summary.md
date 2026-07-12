@@ -12,6 +12,11 @@
 
 {{ repo_summary }}
 
+## Project Type
+
+- **Type:** {{ project_type }}
+- **Design report:** {% if project_type == "greenfield" or project_type == "scaffold" %}`.agent/design-report.md`{% else %}—{% endif %}
+
 ## Environment Status
 
 - **Build:** {{ build_status }}

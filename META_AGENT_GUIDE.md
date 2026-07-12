@@ -3,10 +3,10 @@
 ## Жизненный цикл сессии
 
 ```
-INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
+INIT → ANALYSE → [DESIGN] → DECOMPOSITION → SETUP → (CHECKPOINT)* → HANDOFF → EXIT
 ```
 
-Фазы выполняются **строго последовательно**. Каждая фаза порождает артефакты в `.agent/` целевого репозитория.
+Фазы выполняются **строго последовательно**. Фаза DESIGN выполняется только если тип проекта — `greenfield` или `scaffold`. Каждая фаза порождает артефакты в `.agent/` целевого репозитория.
 
 ---
 
@@ -25,8 +25,10 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель от пользователя>",
+  "project_type": "pending",
   "phases": {
     "analysis": "pending",
+    "design": "pending",
     "decomposition": "pending",
     "environment": "pending",
     "handoff": "pending"
@@ -47,22 +49,39 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
 **Протокол:** `PROTOCOLS/01_ANALYSIS.md`
 
 **Действия:**
-- Выполнить анализ репозитория по протоколу
+- Выполнить анализ репозитория по протоколу (определяет тип проекта)
 - Записать результат в `.agent/analysis-report.md`
-- Обновить checkpoints.json: `phases.analysis = "completed"`
+- Обновить checkpoints.json: `phases.analysis = "completed"`, `project_type = "existing" | "greenfield" | "scaffold"`
 
 **Выход:** `.agent/analysis-report.md`
 
+**Ветвление:** если `project_type = "greenfield"` или `"scaffold"` → далее фаза DESIGN. Если `"existing"` → DESIGN пропускается, сразу DECOMPOSITION.
+
 ---
 
-## Фаза 2: PLAN
+## Фаза 2: DESIGN (условная)
 
-**Вход:** analysis-report.md, цель пользователя, checkpoints.json (analysis: completed).
+**Вход:** analysis-report.md, checkpoints.json (analysis: completed, project_type: greenfield/scaffold).
 
-**Протокол:** `PROTOCOLS/02_DECOMPOSITION.md`
+**Протокол:** `PROTOCOLS/02_DESIGN.md`
 
 **Действия:**
-- Выполнить декомпозицию цели по протоколу
+- Спроектировать архитектуру, модули, данные, интерфейсы
+- Записать результат в `.agent/design-report.md`
+- Обновить checkpoints.json: `phases.design = "completed"`
+
+**Выход:** `.agent/design-report.md`
+
+---
+
+## Фаза 3: DECOMPOSITION
+
+**Вход:** analysis-report.md + опционально design-report.md + checkpoints.json (design: completed либо analysis: completed для existing).
+
+**Протокол:** `PROTOCOLS/03_DECOMPOSITION.md`
+
+**Действия:**
+- Выполнить декомпозицию цели (и дизайна, если есть) по протоколу
 - Записать манифест в `.agent/task-manifest.json` и `.agent/task-manifest.md`
 - Обновить checkpoints.json: `phases.decomposition = "completed"`, заполнить `tasks`
 
@@ -70,22 +89,22 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
 
 ---
 
-## Фаза 3: SETUP
+## Фаза 4: SETUP
 
-**Вход:** analysis-report.md, task-manifest.json, checkpoints.json (decomposition: completed).
+**Вход:** analysis-report.md, design-report.md (опционально), task-manifest.json, checkpoints.json (decomposition: completed).
 
-**Протокол:** `PROTOCOLS/03_ENVIRONMENT_SETUP.md`
+**Протокол:** `PROTOCOLS/04_ENVIRONMENT_SETUP.md`
 
 **Действия:**
-- Выполнить настройку окружения по протоколу
-- Записать результат проверки в `.agent/baseline-test-report.log`
+- Выполнить настройку окружения по протоколу (ветка A для existing, ветка B для greenfield)
+- Записать результат проверки в `.agent/baseline-test-report.log` и `.agent/setup-report.log`
 - Обновить checkpoints.json: `phases.environment = "completed"`
 
 **Выход:** рабочее окружение + `.agent/baseline-test-report.log`
 
 ---
 
-## Фаза 4: CHECKPOINT (сквозная)
+## Фаза 5: CHECKPOINT (сквозная)
 
 **Вход:** любая фаза.
 
@@ -98,8 +117,10 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель>",
+  "project_type": "existing | greenfield | scaffold",
   "phases": {
     "analysis": "completed",
+    "design": "completed",
     "decomposition": "in_progress",
     "environment": "pending",
     "handoff": "pending"
@@ -118,11 +139,11 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
 
 ---
 
-## Фаза 5: HANDOFF
+## Фаза 6: HANDOFF
 
 **Вход:** все предыдущие фазы completed.
 
-**Протокол:** `PROTOCOLS/04_HANDOFF.md`
+**Протокол:** `PROTOCOLS/05_HANDOFF.md`
 
 **Действия:**
 - Выполнить передачу по протоколу
@@ -134,6 +155,6 @@ INIT → ANALYSE → PLAN → SETUP → CHECKPOINT → HANDOFF → EXIT
 
 ---
 
-## Фаза 6: EXIT
+## Фаза 7: EXIT
 
 Мета-агент завершает работу. Управление переходит к исполнительному агенту.

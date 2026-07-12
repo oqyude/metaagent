@@ -8,11 +8,11 @@
 
 - `VERSION` — текущая версия MetaAgent
 - Запрос пользователя (цель)
-- Опционально: `metaagent-request.md` в корне целевого репозитория
+- Опционально: `.agent/metaagent-request.md` (в директории `.agent/` целевого репозитория)
 
 ## Шаги
 
-### 0.1. Проверить наличие metaagent-request.md
+### 0.1. Проверить наличие .agent/metaagent-request.md
 
 Если файл существует — распарсить, провалидировать и использовать.
 Если нет — перейти к интервью (шаг 0.2).
@@ -24,7 +24,7 @@
 **Сценарий интервью:**
 
 ```
-MetaAgent: metaagent-request.md не найден. Давайте настроим сессию.
+MetaAgent: .agent/metaagent-request.md не найден. Давайте настроим сессию.
            (или ответьте "default" — я выберу depth=4, light)
 
 Q1: Это новый проект (greenfield) или работа с существующим кодом (existing)?
@@ -80,7 +80,7 @@ Depth=4 (Light) означает:
 - SETUP — полный
 - HANDOFF — плоский `.agent/` (без layer-структуры)
 
-### 0.4. Запись metaagent-request.md
+### 0.4. Запись .agent/metaagent-request.md
 
 Если файла не было, создать его по результатам интервью с пометкой `Auto-generated`:
 
@@ -123,12 +123,12 @@ depth < 9 → red_team=false
 
 ## Выход
 
-- `metaagent-request.md` (создан или подтверждён)
+- `.agent/metaagent-request.md` (создан или подтверждён)
 - config — словарь параметров для записи в checkpoints.json
 
 ## Критерии завершения
 
-- [ ] metaagent-request.md существует (создан или найден)
+- [ ] `.agent/metaagent-request.md` существует (создан или найден)
 - [ ] Config содержит depth, design.*, red_team, risk_register, decomposition.*, handoff.*
 - [ ] Config совместим с depth (доп. функции отключены для малых depth)
 - [ ] При отсутствии файла — проведено интервью, файл создан

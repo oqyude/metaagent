@@ -7,7 +7,7 @@
 ## Вход
 
 - `.agent/analysis-report.md` (project_type: greenfield или scaffold)
-- `metaagent-request.md` (конфигурация сессии: adr, alternative_arch, risk_register)
+- `.agent/metaagent-request.md` (конфигурация сессии: adr, alternative_arch, risk_register)
 - `.agent/checkpoints.json` (фаза design: pending)
 
 ## Правила

@@ -7,7 +7,7 @@
 ## Вход
 
 - Целевой репозиторий (локальная копия)
-- `metaagent-request.md` (конфигурация сессии: глубина, функции) — или auto-generated
+- `.agent/metaagent-request.md` (конфигурация сессии: глубина, функции) — или auto-generated
 - `.agent/checkpoints.json` (фаза analysis: pending)
 
 ## Шаги
@@ -41,7 +41,7 @@
 }
 ```
 
-Если `metaagent-request.md` не найден — использовать значения по умолчанию (depth=6, все базовые функции=true, расширенные=false).
+Если `.agent/metaagent-request.md` не найден — использовать значения по умолчанию (depth=6, все базовые функции=true, расширенные=false).
 
 ### 1.0. Определение типа проекта
 

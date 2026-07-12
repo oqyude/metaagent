@@ -3,7 +3,7 @@
 ## Жизненный цикл сессии
 
 ```
-metaagent-request.md
+.agent/metaagent-request.md
         │
         ▼
 INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CHECKPOINT)* → HANDOFF → EXIT
@@ -21,9 +21,9 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ---
 
-## Конфигурация сессии (metaagent-request.md)
+## Конфигурация сессии (.agent/metaagent-request.md)
 
-Перед запуском сессии пользователь заполняет `metaagent-request.md` (см. `TEMPLATES/metaagent-request.md`).
+Перед запуском сессии пользователь заполняет `.agent/metaagent-request.md` (см. `TEMPLATES/metaagent-request.md`). Файл должен находиться в директории `.agent/` целевого репозитория.
 
 Ключевые параметры:
 
@@ -52,22 +52,22 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ## Фаза 0: INIT
 
-**Вход:** целевой репозиторий + опционально metaagent-request.md.
+**Вход:** целевой репозиторий + опционально `.agent/metaagent-request.md`.
 
 **Протокол:** `PROTOCOLS/00_CONFIG.md`
 
 **Действия:**
 - Прочитать `VERSION` — текущая версия MetaAgent
 - Склонировать/открыть целевой репозиторий
+- Создать директорию `.agent/` в корне целевого репозитория (если нет)
 - Прочитать `PROTOCOLS/00_CONFIG.md`
 - Выполнить 00_CONFIG:
-  - Если `metaagent-request.md` существует — прочитать config из него
+  - Если `.agent/metaagent-request.md` существует — прочитать config из него
   - Если нет — провести интервью с пользователем (или принять `default`)
   - Валидировать config относительно depth
-  - Если не было файла — создать `metaagent-request.md` с пометкой Auto-generated
+  - Если не было файла — создать `.agent/metaagent-request.md` с пометкой Auto-generated
 - **Проверить версию:** если `.agent/checkpoints.json` существует → выполнить `PROTOCOLS/00_MIGRATE.md` (сравнить metaagent_version, применить миграцию при необходимости)
 - Прочитать `PROTOCOLS/01_ANALYSIS.md`
-- Создать директорию `.agent/` в корне целевого репозитория (если нет)
 - Инициализировать `.agent/checkpoints.json` с `metaagent_version` (если не существовал)
 
 ```json
@@ -104,7 +104,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ## Фаза 1: ANALYSE
 
-**Вход:** целевой репозиторий, metaagent-request.md (или auto-generated), checkpoints.json (analysis: pending, config: from INIT).
+**Вход:** целевой репозиторий, `.agent/metaagent-request.md` (или auto-generated), checkpoints.json (analysis: pending, config: from INIT).
 
 **Протокол:** `PROTOCOLS/01_ANALYSIS.md`
 

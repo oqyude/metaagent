@@ -8,7 +8,7 @@
 
 - `.agent/design-report.md`
 - `.agent/layer-1/adr/*.md` (если созданы)
-- `metaagent-request.md` (глубина проработки >= 9)
+- `.agent/metaagent-request.md` (глубина проработки >= 9)
 
 ## Когда выполняется
 

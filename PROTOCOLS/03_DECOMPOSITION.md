@@ -10,7 +10,7 @@
 - `.agent/design-report.md` (опционально — для greenfield/scaffold)
 - `.agent/layer-1/adr/*.md` (опционально)
 - `.agent/layer-1/risk-register.md` (опционально)
-- `metaagent-request.md` (конфигурация сессии)
+- `.agent/metaagent-request.md` (конфигурация сессии)
 - Цель пользователя (из checkpoints.json)
 - `.agent/checkpoints.json` (фаза decomposition: pending)
 

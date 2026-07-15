@@ -1,45 +1,77 @@
 # MetaAgent
 
-**MetaAgent** — это репозиторий-инструкция для мета-агента: агента, который подготавливает произвольные репозитории для работы исполнительного (executive) агента.
+MetaAgent — это набор инструкций для AI-агента, который превращает хаотичное общение с агентом в структурированный, предсказуемый и самодостаточный процесс.
 
-## Задача мета-агента
+## Чем MetaAgent отличается от обычного общения с агентом?
 
-1. **Проанализировать** целевой репозиторий: архитектура, стек, конвенции, тесты
-2. **Декомпозировать** цель на атомарные задачи с чёткими критериями приёмки
-3. **Обустроить** окружение: зависимости, конфиги, baseline тестов
-4. **Передать** подготовленный контекст и манифест задач исполнительному агенту
+| Обычный агент | MetaAgent |
+|---------------|-----------|
+| Вы даёте задачу — агент сразу пишет код | Агент сначала анализирует, проектирует, декомпозирует — только потом код |
+| Контекст теряется при каждом новом разговоре | Вся сессия сохраняется в `.agent/` проекта — можно прервать и продолжить |
+| Нет системы — агент действует ad-hoc | Чёткий жизненный цикл: INIT → ANALYSE → DESIGN → DECOMPOSITION → SETUP → HANDOFF |
+| Нет места для ваших правил | `.agent/rules/` — ваши условия, которые агент читает перед каждой фазой |
+| Архитектурные решения не фиксируются | ADR, Risk Register, Red Team Review — всё документируется |
+| Контекст бесконтрольно растёт | Завершённые задачи архивируются — контекст остаётся lean |
 
-## Структура
+## Ключевые фичи
 
+- **Структурированный жизненный цикл** — каждая фаза имеет протокол и критерии завершения. Никаких пропущенных шагов.
+- **Самодостаточность** — `install.sh` копирует весь MetaAgent в `.agent/src/` вашего проекта. Агенту не нужно выходить за пределы проекта.
+- **Персистентность** — чекпоинты (`checkpoints.json`) позволяют возобновить сессию с любой фазы.
+- **Ваши правила** — `.agent/rules/project-rules.md` — условия, которые агент соблюдает всегда.
+- **Архивация** — выполненные задачи и устаревшие решения уходят в `.agent/archive/`. Контекст не раздувается, история сохраняется.
+- **ADR и инварианты** — архитектурные решения документируются и проверяются тестами.
+- **Разделение труда** — мета-агент анализирует и планирует, исполнительный агент реализует код.
+- **Кроссплатформенная установка** — `install.sh` (Unix) и `install.ps1` (Windows).
+
+## Быстрый старт
+
+```bash
+# Установить MetaAgent в ваш проект
+./install.sh /path/to/your/project
+
+# Или интерактивно:
+./install.sh
 ```
-metaagent/
-├── README.md                     # Этот файл
-├── META_AGENT_GUIDE.md           # Главная инструкция (жизненный цикл)
-├── PROTOCOLS/                    # Детальные протоколы
-│   ├── 01_ANALYSIS.md
-│   ├── 02_DECOMPOSITION.md
-│   ├── 03_ENVIRONMENT_SETUP.md
-│   └── 04_HANDOFF.md
-├── TEMPLATES/                    # Шаблоны артефактов
-│   ├── analysis-report.md
-│   ├── task-manifest.json
-│   ├── task-manifest.md
-│   └── handoff-summary.md
-├── BOUNDARIES.md                 # Рамки и границы
-├── WORKFLOW.md                   # Сквозной пример сессии
-├── .gitignore
-└── LICENSE
+
+После установки в проекте появятся `.agent/src/` (исходники MetaAgent), `.agent/rules/` (ваши правила) и `AGENTS.md` (инструкция для агента). Любой AI-агент, работающий в проекте, автоматически получит полный контекст через `AGENTS.md`.
+
+---
+
+## MetaAgent
+
+MetaAgent is an instruction set for an AI agent that transforms chaotic agent interactions into a structured, predictable, and self-contained process.
+
+## Why MetaAgent over plain agent chat?
+
+| Plain agent | MetaAgent |
+|-------------|-----------|
+| You give a task — agent writes code immediately | Agent analyses, designs, decomposes — code comes last |
+| Context lost with every new conversation | Full session persists in `.agent/` — pause and resume anytime |
+| No system — agent acts ad-hoc | Clear lifecycle: INIT → ANALYSE → DESIGN → DECOMPOSITION → SETUP → HANDOFF |
+| No place for your rules | `.agent/rules/` — your constraints, read before every phase |
+| Architectural decisions lost | ADRs, Risk Register, Red Team Review — fully documented |
+| Context grows unboundedly | Completed tasks are archived — context stays lean |
+
+## Key features
+
+- **Structured lifecycle** — every phase has a protocol and completion criteria. No skipped steps.
+- **Self-contained** — `install.sh` copies MetaAgent into `.agent/src/` of your project. Agent never needs to leave the project directory.
+- **Resumable** — checkpoints (`checkpoints.json`) let you resume a session from any phase.
+- **Your rules** — `.agent/rules/project-rules.md` — constraints the agent follows always.
+- **Archiving** — completed tasks and outdated decisions go to `.agent/archive/`. Context stays lean, history is preserved.
+- **ADRs & invariants** — architectural decisions are documented and verified with tests.
+- **Separation of concerns** — meta-agent analyses and plans, executive agent implements code.
+- **Cross-platform setup** — `install.sh` (Unix) and `install.ps1` (Windows).
+
+## Quick start
+
+```bash
+# Install MetaAgent into your project
+./install.sh /path/to/your/project
+
+# Or interactive:
+./install.sh
 ```
 
-## Как это работает
-
-Мета-агент получает доступ к целевому репозиторию + цель от пользователя. Он последовательно проходит фазы, описанные в `META_AGENT_GUIDE.md`, создавая в целевом репозитории директорию `.agent/` со всеми артефактами.
-
-После фазы **HANDOFF** мета-агент завершает работу, и исполнительный агент начинает выполнение задач из `.agent/task-manifest.json`, сверяясь с чекпоинтами в `.agent/checkpoints.json`.
-
-## Быстрый старт для мета-агента
-
-1. Прочитай `META_AGENT_GUIDE.md`
-2. Следуй протоколам из `PROTOCOLS/` по порядку
-3. Используй шаблоны из `TEMPLATES/`
-4. Соблюдай границы из `BOUNDARIES.md`
+After install, your project will have `.agent/src/` (MetaAgent sources), `.agent/rules/` (your rules), and `AGENTS.md` (agent instructions). Any AI agent working in the project automatically gets full context through `AGENTS.md`.

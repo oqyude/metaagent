@@ -49,7 +49,9 @@ AGENT_DIR="$TARGET_PATH/.agent"
 SRC_DIR="$AGENT_DIR/src"
 VERSION="$(cat "$METAAGENT_SRC/VERSION" 2>/dev/null || echo '?')"
 
-mkdir -p "$SRC_DIR"
+RULES_DIR="$AGENT_DIR/rules"
+ARCHIVE_DIR="$AGENT_DIR/archive"
+mkdir -p "$SRC_DIR" "$RULES_DIR" "$ARCHIVE_DIR"
 echo "Installing MetaAgent v$VERSION → $SRC_DIR"
 
 # --- copy files ---
@@ -111,6 +113,7 @@ create_agents_md() {
 | Протоколы фаз | \`.agent/src/PROTOCOLS/\` |
 | Шаблоны артефактов | \`.agent/src/TEMPLATES/\` |
 | Границы (что разрешено/запрещено) | \`.agent/src/BOUNDARIES.md\` |
+| Правила проекта | \`.agent/rules/project-rules.md\` |
 | Примеры работы | \`.agent/src/WORKFLOW.md\` |
 | Версия | \`.agent/src/VERSION\` |
 
@@ -127,9 +130,10 @@ create_agents_md() {
 
 1. **Прочитай** \`.agent/src/META_AGENT_GUIDE.md\` — пойми жизненный цикл MetaAgent.
 2. **Прочитай** \`.agent/src/BOUNDARIES.md\` — соблюдай границы.
-3. **Проверь** \`.agent/checkpoints.json\` — если существует, используй как состояние сессии.
-4. **Проверь** \`.agent/task-manifest.json\` — если существует, выполняй задачи по порядку.
-5. Если \`.agent/\` не инициализирован или устарел — запусти \`install.sh --update\` для
+3. **Прочитай** \`.agent/rules/project-rules.md\` — выполни пользовательские правила.
+4. **Проверь** \`.agent/checkpoints.json\` — если существует, используй как состояние сессии.
+5. **Проверь** \`.agent/task-manifest.json\` — если существует, выполняй задачи по порядку.
+6. Если \`.agent/\` не инициализирован или устарел — запусти \`install.sh --update\` для
    обновления исходников MetaAgent до актуальной версии.
 AGENTS_EOF
 }

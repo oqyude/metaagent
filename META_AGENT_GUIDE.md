@@ -65,6 +65,8 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
   - Скопировать `PROTOCOLS/` и `TEMPLATES/` в `.agent/src/`
   - Скопировать `install.sh` и `install.ps1` в `.agent/src/` (для возможности обновления)
   - Если файлы уже существуют — пропустить (не перезаписывать)
+- **Создать `.agent/rules/`** — директорию для пользовательских правил
+  - Если `.agent/rules/project-rules.md` не существует — создать из шаблона `.agent/src/TEMPLATES/project-rules.md`
 - **Создать/обновить `AGENTS.md` в корне целевого репозитория** (если нет — создать, если есть — не трогать)
 - Прочитать `PROTOCOLS/00_CONFIG.md`
 - Выполнить 00_CONFIG:
@@ -78,7 +80,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ```json
 {
-  "metaagent_version": "1.0.0",
+  "metaagent_version": "1.1.0",
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель от пользователя>",
@@ -115,6 +117,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/01_ANALYSIS.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
 - Прочитать config из checkpoints.json (уже получен на INIT через 00_CONFIG)
 - Если config отсутствует — применить default config (depth=4) как fallback
 - Выполнить анализ репозитория по протоколу (определяет тип проекта)
@@ -136,6 +139,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/02_DESIGN.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
 - Спроектировать архитектуру, модули, данные, интерфейсы
 - Если config.design.alternative_arch: описать альтернативную архитектуру
 - Если config.design.adr: создать ADR для каждого ключевого решения → `.agent/layer-1/adr/`
@@ -158,6 +162,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/02b_REDTEAM.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
 - Выполнить Red Team Review по протоколу
 - Записать результат в `.agent/layer-1/red-team-report.md`
 - Дополнить risk-register.md (если существует)
@@ -175,6 +180,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/03_DECOMPOSITION.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
 - Разбить цель (и дизайн) на атомарные задачи
 - Если config.decomposition.invariant_tests: создать задачи-инварианты для каждого ADR
 - Записать манифест в `.agent/task-manifest.json` и `.agent/task-manifest.md`
@@ -191,6 +197,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/04_ENVIRONMENT_SETUP.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
 - Выполнить настройку окружения по протоколу (ветка A для existing, ветка B для greenfield)
 - Записать результат проверки в `.agent/baseline-test-report.log` и `.agent/setup-report.log`
 - Обновить checkpoints.json: `phases.environment = "completed"`
@@ -205,11 +212,14 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 **Протокол:** обновлять checkpoints.json после каждого значимого шага.
 
+**Архивирование перед сохранением чекпоинта:**
+- Если checkpoints.json уже существует — сохранить предыдущую версию в `.agent/archive/checkpoints/<last_updated>.json`
+
 **Формат:**
 
 ```json
 {
-  "metaagent_version": "1.0.0",
+  "metaagent_version": "1.1.0",
   "session_id": "<uuid>",
   "target_repo": "<path>",
   "goal": "<цель>",
@@ -252,6 +262,13 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 **Протокол:** `PROTOCOLS/05_HANDOFF.md`
 
 **Действия:**
+- **Прочитать `.agent/rules/project-rules.md`** — учесть пользовательские правила
+- **Архивировать завершённые задачи:**
+  - Для каждой задачи со статусом `completed` в `task-manifest.json`:
+    - Перенести полное описание в `.agent/archive/tasks/<id>.json`
+    - Заменить в манифесте на one-liner: `{ "id": "<id>", "title": "<title>", "status": "archived" }`
+  - Создать `.agent/archive/index.json` со списком архивированных задач
+  - Заархивировать предыдущий `checkpoints.json` в `.agent/archive/checkpoints/`
 - Выполнить валидацию всех артефактов
 - Если config.handoff.layer_structure: организовать `.agent/` по слоям
 - Записать `.agent/handoff-summary.md` (в layer-3 при layer_structure=yes)
@@ -285,6 +302,14 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
     VERSION                     #   версия MetaAgent
     install.sh                  #   скрипт установки/обновления (Unix)
     install.ps1                 #   скрипт установки/обновления (Windows)
+  rules/                        # пользовательские правила (всегда)
+    project-rules.md            #   правила проекта — читать перед каждой фазой
+  archive/                      # архив завершённых артефактов (создаётся при HANDOFF)
+    index.json                  #   мета-индекс архива
+    tasks/                      #   детали завершённых задач
+    checkpoints/                #   исторические чекпоинты
+    adr/                        #   заменённые ADR
+    reports/                    #   устаревшие отчёты
   layer-0/                      # ядро сессии (только при layer_structure=yes)
     checkpoints.json            # всегда (ядро)
     session-summary.md          # краткая сводка сессии

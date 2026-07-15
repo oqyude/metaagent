@@ -18,7 +18,7 @@
 
 ```json
 {
-  "metaagent_version": "1.0.0",
+  "metaagent_version": "1.1.0",
   "session_id": "ses_abc123",
   "target_repo": "/tmp/fastapi-app",
   "goal": "Добавить GET /health с тестами",
@@ -129,7 +129,7 @@
 
 ```json
 {
-  "metaagent_version": "1.0.0",
+  "metaagent_version": "1.1.0",
   "session_id": "ses_abc123",
   "goal": "Добавить GET /health с тестами",
   "project_type": "existing",
@@ -189,7 +189,7 @@ Tasks: 3 tasks ready
 
 ```json
 {
-  "metaagent_version": "1.0.0",
+  "metaagent_version": "1.1.0",
   "session_id": "ses_def456",
   "target_repo": "/tmp/cashflow-app",
   "goal": "Спроектировать и реализовать MVP сервиса прогнозирования денежных потоков",

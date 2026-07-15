@@ -43,6 +43,7 @@
 | `title` | Заголовок (что сделать) | "Добавить модель User" |
 | `description` | Описание (как и зачем) | "Создать SQLAlchemy модель..." |
 | `type` | Тип задачи | `feature`, `refactor`, `test`, `fix`, `config`, `design`, `docs` |
+| `status` | Статус задачи | `pending`, `in_progress`, `completed`, `failed`, `archived` |
 | `files` | Список файлов, которые нужно создать/изменить | `["app/models/user.py"]` |
 | `depends_on` | ID задач, от которых зависит | `[]` или `["T0"]` |
 | `acceptance_criteria` | Список критериев приёмки (3-5 пунктов) | `["Модель проходит миграцию"]` |
@@ -116,6 +117,10 @@
 Обновить checkpoints.json:
 - `phases.decomposition = "completed"`
 - `tasks` = полный массив задач со статусом `pending`
+
+> **Примечание:** после HANDOFF завершённые задачи будут архивированы —
+> полное описание уходит в `.agent/archive/tasks/`, в манифесте остаётся
+> one-liner с `"status": "archived"`.
 
 ## Критерии завершения фазы
 

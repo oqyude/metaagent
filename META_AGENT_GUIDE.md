@@ -60,6 +60,12 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 - Прочитать `VERSION` — текущая версия MetaAgent
 - Склонировать/открыть целевой репозиторий
 - Создать директорию `.agent/` в корне целевого репозитория (если нет)
+- **Установить исходники MetaAgent в `.agent/src/`:**
+  - Скопировать `META_AGENT_GUIDE.md`, `BOUNDARIES.md`, `WORKFLOW.md`, `VERSION` в `.agent/src/`
+  - Скопировать `PROTOCOLS/` и `TEMPLATES/` в `.agent/src/`
+  - Скопировать `install.sh` и `install.ps1` в `.agent/src/` (для возможности обновления)
+  - Если файлы уже существуют — пропустить (не перезаписывать)
+- **Создать/обновить `AGENTS.md` в корне целевого репозитория** (если нет — создать, если есть — не трогать)
 - Прочитать `PROTOCOLS/00_CONFIG.md`
 - Выполнить 00_CONFIG:
   - Если `.agent/metaagent-request.md` существует — прочитать config из него
@@ -263,11 +269,23 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 
 ---
 
-## Структура .agent/ (при layer_structure=yes)
+## Структура .agent/
+
+.agent/ всегда содержит служебную директорию `src/` с исходниками MetaAgent (см. фазу INIT).
+При layer_structure=yes артефакты сессии раскладываются по слоям layer-0..3.
 
 ```
 .agent/
-  layer-0/
+  src/                          # исходники MetaAgent (всегда)
+    META_AGENT_GUIDE.md         #   главная инструкция
+    PROTOCOLS/                  #   протоколы фаз
+    TEMPLATES/                  #   шаблоны артефактов
+    BOUNDARIES.md               #   границы
+    WORKFLOW.md                 #   примеры работы
+    VERSION                     #   версия MetaAgent
+    install.sh                  #   скрипт установки/обновления (Unix)
+    install.ps1                 #   скрипт установки/обновления (Windows)
+  layer-0/                      # ядро сессии (только при layer_structure=yes)
     checkpoints.json            # всегда (ядро)
     session-summary.md          # краткая сводка сессии
   layer-1/                      # архитектурные решения (справочно)

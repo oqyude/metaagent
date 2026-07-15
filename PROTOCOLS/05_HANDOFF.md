@@ -29,11 +29,18 @@
   - `task-manifest.json` + `task-manifest.md`
   - `baseline-test-report.log`
   - `setup-report.log`
+  - `src/META_AGENT_GUIDE.md`
+  - `src/BOUNDARIES.md`
+  - `src/VERSION`
+  - `src/PROTOCOLS/`
+  - `src/TEMPLATES/`
 - [ ] Для greenfield: `design-report.md` присутствует
 - [ ] В task-manifest.json нет циклических зависимостей
 - [ ] Все acceptance criteria сформулированы измеримо
 - [ ] Для каждой задачи указаны affected files
 - [ ] В репозитории нет незакоммиченных изменений (кроме `.agent/`)
+- [ ] `.agent/src/` содержит актуальные исходники MetaAgent (META_AGENT_GUIDE.md, PROTOCOLS/, TEMPLATES/, BOUNDARIES.md, VERSION)
+- [ ] `AGENTS.md` присутствует в корне репозитория
 
 **Дополнительные проверки (если config включает):**
 - [ ] ADR присутствуют (если adr=yes)
@@ -120,6 +127,8 @@ Tasks: <count> tasks ready
 9. **`layer-2/analysis-report.md`** — полный анализ репозитория (справочно)
 10. **`layer-2/design-report.md`** (только для greenfield) — архитектурный план
 11. **`layer-3/baseline-test-report.log`** — baseline тестов (чтобы не сломать существующее)
+12. **`.agent/src/`** — полные исходники MetaAgent (справочно, всегда присутствуют)
+13. **`AGENTS.md`** — инструкция для AI-агента в корне проекта (всегда присутствует)
 
 ## Выход
 
@@ -130,6 +139,8 @@ Tasks: <count> tasks ready
 ## Критерии завершения
 
 - [ ] Все артефакты на месте (с учётом layer-структуры)
+- [ ] `.agent/src/` содержит актуальные исходники MetaAgent
+- [ ] `AGENTS.md` присутствует в корне репозитория
 - [ ] handoff-summary.md заполнен (включая config, design summary, ADR summary)
 - [ ] checkpoints.json финализирован
 - [ ] Сигнал отправлен пользователю/оркестратору

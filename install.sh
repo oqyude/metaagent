@@ -51,8 +51,22 @@ VERSION="$(cat "$METAAGENT_SRC/VERSION" 2>/dev/null || echo '?')"
 
 RULES_DIR="$AGENT_DIR/rules"
 ARCHIVE_DIR="$AGENT_DIR/archive"
-mkdir -p "$SRC_DIR" "$RULES_DIR" "$ARCHIVE_DIR"
+TEMP_DIR="$TARGET_PATH/.temp"
+mkdir -p "$SRC_DIR" "$RULES_DIR" "$ARCHIVE_DIR" "$TEMP_DIR"
 echo "Installing MetaAgent v$VERSION → $SRC_DIR"
+
+# --- create .temp/ and ensure .gitignore ---
+if [[ ! -f "$TARGET_PATH/.gitignore" ]]; then
+    echo ".temp/" > "$TARGET_PATH/.gitignore"
+    echo "  [create] .gitignore (.temp/)"
+else
+    if ! grep -q '^\.temp/$' "$TARGET_PATH/.gitignore"; then
+        echo ".temp/" >> "$TARGET_PATH/.gitignore"
+        echo "  [update] .gitignore (added .temp/)"
+    else
+        echo "  [skip] .gitignore (.temp/ already present)"
+    fi
+fi
 
 # --- copy files ---
 copy_file() {

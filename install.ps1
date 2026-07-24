@@ -47,13 +47,30 @@ $AgentDir = Join-Path $TargetPath ".agent"
 $SrcDir   = Join-Path $AgentDir "src"
 $RulesDir   = Join-Path $AgentDir "rules"
 $ArchiveDir = Join-Path $AgentDir "archive"
+$TempDir    = Join-Path $TargetPath ".temp"
 $VersionFile = Join-Path $MetaAgentSrc "VERSION"
 $Version = if (Test-Path $VersionFile) { Get-Content $VersionFile -Raw | ForEach-Object { $_.Trim() } } else { "?" }
 
 New-Item -ItemType Directory -Path $SrcDir -Force | Out-Null
 New-Item -ItemType Directory -Path $RulesDir -Force | Out-Null
 New-Item -ItemType Directory -Path $ArchiveDir -Force | Out-Null
+New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
 Write-Host "Installing MetaAgent v$Version → $SrcDir"
+
+# --- create .temp/ and ensure .gitignore ---
+$GitIgnore = Join-Path $TargetPath ".gitignore"
+if (-not (Test-Path $GitIgnore -PathType Leaf)) {
+    ".temp/" | Out-File -FilePath $GitIgnore -Encoding utf8
+    Write-Host "  [create] .gitignore (.temp/)"
+} else {
+    $content = Get-Content $GitIgnore -Raw
+    if ($content -notmatch '^\.temp/$') {
+        ".temp/" | Out-File -FilePath $GitIgnore -Encoding utf8 -Append
+        Write-Host "  [update] .gitignore (added .temp/)"
+    } else {
+        Write-Host "  [skip] .gitignore (.temp/ already present)"
+    }
+}
 
 # --- copy files ---
 function Copy-File {

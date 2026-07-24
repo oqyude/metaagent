@@ -60,6 +60,8 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 - Прочитать `VERSION` — текущая версия MetaAgent
 - Склонировать/открыть целевой репозиторий
 - Создать директорию `.agent/` в корне целевого репозитория (если нет)
+- **Создать `.temp/` в корне целевого репозитория** (если нет) — для временных файлов агента
+- **Добавить `.temp/` в `.gitignore`** целевого репозитория (если нет записи)
 - **Установить исходники MetaAgent в `.agent/src/`:**
   - Скопировать `META_AGENT_GUIDE.md`, `BOUNDARIES.md`, `WORKFLOW.md`, `VERSION` в `.agent/src/`
   - Скопировать `PROTOCOLS/` и `TEMPLATES/` в `.agent/src/`
@@ -289,6 +291,7 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
 ## Структура .agent/
 
 .agent/ всегда содержит служебную директорию `src/` с исходниками MetaAgent (см. фазу INIT).
+`.temp/` в корне проекта — временные файлы агента (всегда, на одном уровне с `.agent/`).
 При layer_structure=yes артефакты сессии раскладываются по слоям layer-0..3.
 
 ```
@@ -329,6 +332,16 @@ INIT → ANALYSE → [DESIGN] → [RED_TEAM] → DECOMPOSITION → SETUP → (CH
     task-manifest.md
     baseline-test-report.log
     setup-report.log
+```
+
+`.temp/` структура:
+
+```
+.temp/
+  downloads/            # временно скачанные файлы
+  patches/              # временные патчи и diff
+  cache/                # кеш анализа, промежуточные результаты
+  agent-session-xxx/    # временные файлы конкретной сессии
 ```
 
 Исполнительный агент всегда начинает с layer-0 (checkpoints + session-summary),

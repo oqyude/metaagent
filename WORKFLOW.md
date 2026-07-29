@@ -28,8 +28,7 @@
     "design": { "adr": false, "alternative_arch": false },
     "red_team": false,
     "risk_register": false,
-    "decomposition": { "invariant_tests": false },
-    "handoff": { "layer_structure": false }
+    "decomposition": { "invariant_tests": false }
   },
   "phases": {
     "analysis": "pending",
@@ -50,7 +49,7 @@
 
 Мета-агент выполняет `PROTOCOLS/01_ANALYSIS.md`. Определяет тип проекта: `existing`.
 
-Результат `.agent/analysis-report.md`:
+Результат `.agent/context/analysis-report.md`:
 
 ```markdown
 ## 2. Стек технологий
@@ -91,7 +90,7 @@
 | T2 | Подключить router в main.py | config | T1 | Ручка доступна по /health |
 | T3 | Написать тесты для /health | test | T2 | Тесты проверяют 200 и структуру ответа |
 
-Создан `.agent/task-manifest.json` и `.agent/task-manifest.md`.
+Создан `.agent/tasks/manifest.json` и `.agent/tasks/manifest.md`.
 
 Чекпоинт обновлён: `decomposition = "completed"`. Tasks: T1-T3 со статусом `pending`.
 
@@ -103,7 +102,7 @@
 
 - `pip install -r requirements.txt` — OK
 - Запуск pytest — OK, 12 passed (базовый тест)
-- Результат в `.agent/baseline-test-report.log`
+- Результат в `.agent/context/baseline-test-report.log`
 
 Чекпоинт обновлён: `environment = "completed"`.
 
@@ -138,8 +137,7 @@
     "design": { "adr": false, "alternative_arch": false },
     "red_team": false,
     "risk_register": false,
-    "decomposition": { "invariant_tests": false },
-    "handoff": { "layer_structure": false }
+    "decomposition": { "invariant_tests": false }
   },
   "phases": {
     "analysis": "completed",
@@ -199,8 +197,7 @@ Tasks: 3 tasks ready
     "design": { "adr": true, "alternative_arch": true },
     "red_team": false,
     "risk_register": true,
-    "decomposition": { "invariant_tests": true },
-    "handoff": { "layer_structure": true }
+    "decomposition": { "invariant_tests": true }
   },
   "phases": {
     "analysis": "pending",
@@ -243,7 +240,7 @@ Tasks: 3 tasks ready
 
 Мета-агент выполняет `PROTOCOLS/02_DESIGN.md`.
 
-Результат `.agent/design-report.md`:
+Результат `.agent/context/design-report.md`:
 
 ```markdown
 ## 1. Технологический стек
@@ -313,7 +310,7 @@ T6: tests — тесты
 - Установка fastapi, uvicorn, sqlalchemy, matplotlib, pytest
 - Создание scaffold-структуры: `app/models/`, `app/services/`, `app/schemas/`, `tests/`
 - Пустые заглушки модулей
-- `.agent/baseline-test-report.log`: "0 tests — greenfield, scaffold готов"
+- `.agent/context/baseline-test-report.log`: "0 tests — greenfield, scaffold готов"
 
 ---
 
@@ -328,15 +325,15 @@ Config: depth=7, adr=yes, risk_register=yes, invariant_tests=yes
 Tasks: 6 tasks ready
 
 Исполнительный агент может начинать с задачи T1 (init).
-Архитектурный план: .agent/design-report.md
-ADR: .agent/layer-1/adr/
+Архитектурный план: .agent/context/design-report.md
+ADR: .agent/decisions/
 ```
 
 ---
 
 ## После HANDOFF: работа исполнительного агента
 
-Исполнительный агент читает `.agent/handoff-summary.md`, `.agent/task-manifest.json`, выполняет задачи по порядку, обновляя checkpoints.json после каждой.
+Исполнительный агент читает `.agent/handoff-summary.md`, `.agent/tasks/manifest.json`, выполняет задачи по порядку, обновляя checkpoints.json после каждой.
 
 После завершения всех задач:
 

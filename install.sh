@@ -50,9 +50,15 @@ SRC_DIR="$AGENT_DIR/src"
 VERSION="$(cat "$METAAGENT_SRC/VERSION" 2>/dev/null || echo '?')"
 
 RULES_DIR="$AGENT_DIR/rules"
+DECISIONS_DIR="$AGENT_DIR/decisions"
+TASKS_DIR="$AGENT_DIR/tasks"
+CONTEXT_DIR="$AGENT_DIR/context"
 ARCHIVE_DIR="$AGENT_DIR/archive"
+ARCHIVE_TASKS_DIR="$ARCHIVE_DIR/tasks"
+ARCHIVE_DECISIONS_DIR="$ARCHIVE_DIR/decisions"
+ARCHIVE_CHECKPOINTS_DIR="$ARCHIVE_DIR/checkpoints"
 TEMP_DIR="$TARGET_PATH/.temp"
-mkdir -p "$SRC_DIR" "$RULES_DIR" "$ARCHIVE_DIR" "$TEMP_DIR"
+mkdir -p "$SRC_DIR" "$RULES_DIR" "$DECISIONS_DIR" "$TASKS_DIR" "$TASKS_DIR/backlog" "$CONTEXT_DIR" "$ARCHIVE_DIR" "$ARCHIVE_TASKS_DIR" "$ARCHIVE_DECISIONS_DIR" "$ARCHIVE_CHECKPOINTS_DIR" "$TEMP_DIR"
 echo "Installing MetaAgent v$VERSION → $SRC_DIR"
 
 # --- create .temp/ and ensure .gitignore ---
@@ -106,6 +112,7 @@ copy_file "$METAAGENT_SRC/WORKFLOW.md" "$SRC_DIR"
 copy_file "$METAAGENT_SRC/VERSION" "$SRC_DIR"
 copy_dir  "$METAAGENT_SRC/PROTOCOLS" "$SRC_DIR"
 copy_dir  "$METAAGENT_SRC/TEMPLATES" "$SRC_DIR"
+# schemas/ внутри TEMPLATES — копируется как часть TEMPLATES
 copy_file "$METAAGENT_SRC/install.sh" "$SRC_DIR"
 copy_file "$METAAGENT_SRC/install.ps1" "$SRC_DIR"
 

@@ -46,14 +46,24 @@ $TargetPath = (Resolve-Path $TargetPath).Path
 $AgentDir = Join-Path $TargetPath ".agent"
 $SrcDir   = Join-Path $AgentDir "src"
 $RulesDir   = Join-Path $AgentDir "rules"
-$ArchiveDir = Join-Path $AgentDir "archive"
+$DecisionsDir = Join-Path $AgentDir "decisions"
+$TasksDir     = Join-Path $AgentDir "tasks"
+$ContextDir   = Join-Path $AgentDir "context"
+$ArchiveDir   = Join-Path $AgentDir "archive"
 $TempDir    = Join-Path $TargetPath ".temp"
 $VersionFile = Join-Path $MetaAgentSrc "VERSION"
 $Version = if (Test-Path $VersionFile) { Get-Content $VersionFile -Raw -Encoding UTF8 | ForEach-Object { $_.Trim() } } else { "?" }
 
 New-Item -ItemType Directory -Path $SrcDir -Force | Out-Null
 New-Item -ItemType Directory -Path $RulesDir -Force | Out-Null
+New-Item -ItemType Directory -Path $DecisionsDir -Force | Out-Null
+New-Item -ItemType Directory -Path $TasksDir -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $TasksDir "backlog") -Force | Out-Null
+New-Item -ItemType Directory -Path $ContextDir -Force | Out-Null
 New-Item -ItemType Directory -Path $ArchiveDir -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $ArchiveDir "tasks") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $ArchiveDir "decisions") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $ArchiveDir "checkpoints") -Force | Out-Null
 New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
 Write-Host "Installing MetaAgent v$Version → $SrcDir"
 

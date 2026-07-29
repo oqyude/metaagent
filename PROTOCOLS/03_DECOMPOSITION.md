@@ -6,10 +6,10 @@
 
 ## Вход
 
-- `.agent/analysis-report.md`
-- `.agent/design-report.md` (опционально — для greenfield/scaffold)
-- `.agent/layer-1/adr/*.md` (опционально)
-- `.agent/layer-1/risk-register.md` (опционально)
+- `.agent/context/analysis-report.md`
+- `.agent/context/design-report.md` (опционально — для greenfield/scaffold)
+- `.agent/decisions/*.md` (опционально)
+- `.agent/context/risk-register.md` (опционально)
 - `.agent/metaagent-request.md` (конфигурация сессии)
 - Цель пользователя (из checkpoints.json)
 - `.agent/checkpoints.json` (фаза decomposition: pending)
@@ -64,7 +64,7 @@
 
 ### 3.5. Зелёная декомпозиция (для greenfield/scaffold)
 
-Если есть `.agent/design-report.md` — задачи формируются на основе группировки из дизайна:
+Если есть `.agent/context/design-report.md` — задачи формируются на основе группировки из дизайна:
 
 1. **T1: init** — инициализация проекта, зависимости, конфиги, scaffold
 2. **T2..Tn: features** — модули/функциональность по одному
@@ -80,7 +80,7 @@
 
 ### 3.7. Executable Invariants (если config.invariant_tests = yes)
 
-Для каждого ADR (из layer-1/adr/) создать задачу типа `invariant` — тест, проверяющий архитектурное правило.
+Для каждого ADR (из `.agent/decisions/`) создать задачу типа `invariant` — тест, проверяющий архитектурное правило.
 
 **Правила превращения ADR в инварианты:**
 
@@ -111,15 +111,15 @@
 
 ## Выход
 
-- `.agent/task-manifest.json` — по схеме `TEMPLATES/task-manifest.json`
-- `.agent/task-manifest.md` — по шаблону `TEMPLATES/task-manifest.md`
+- `.agent/tasks/manifest.json` — по шаблону `TEMPLATES/task-manifest.json`
+- `.agent/tasks/manifest.md` — по шаблону `TEMPLATES/task-manifest.md`
 
 Обновить checkpoints.json:
 - `phases.decomposition = "completed"`
 - `tasks` = полный массив задач со статусом `pending`
 
 > **Примечание:** после HANDOFF завершённые задачи будут архивированы —
-> полное описание уходит в `.agent/archive/tasks/`, в манифесте остаётся
+> полное описание уходит в `.agent/archive/tasks/`, в manifest.json остаётся
 > one-liner с `"status": "archived"`.
 
 ## Критерии завершения фазы
@@ -129,5 +129,5 @@
 - [ ] Для каждой задачи указаны affected files
 - [ ] Зависимости между задачами корректны (нет циклов)
 - [ ] Invariant-задачи созданы для каждого ADR (если config требует)
-- [ ] `.agent/task-manifest.json` и `.agent/task-manifest.md` созданы
+- [ ] `.agent/tasks/manifest.json` и `.agent/tasks/manifest.md` созданы
 - [ ] checkpoints.json обновлён

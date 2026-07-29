@@ -6,9 +6,9 @@
 
 ## Вход
 
-- `.agent/analysis-report.md`
-- `.agent/design-report.md` (опционально, для greenfield)
-- `.agent/task-manifest.json`
+- `.agent/context/analysis-report.md`
+- `.agent/context/design-report.md` (опционально, для greenfield)
+- `.agent/tasks/manifest.json`
 - `.agent/checkpoints.json` (фаза environment: pending)
 
 ## Поведение в зависимости от типа проекта
@@ -44,7 +44,7 @@
 ### 4A.4. Baseline-тесты
 
 - Запустить все тесты проекта
-- Записать в `.agent/baseline-test-report.log`:
+- Записать в `.agent/context/baseline-test-report.log`:
   - Команда запуска
   - Общее количество тестов
   - Пройдено / упало / пропущено
@@ -97,7 +97,7 @@ class CashflowService:
 
 - Создать пустой тестовый файл для каждого модуля
 - Настроить тестовый раннер (pytest, jest и т.д.)
-- Записать в `.agent/baseline-test-report.log`: "0 tests — greenfield, scaffold готов"
+- Записать в `.agent/context/baseline-test-report.log`: "0 tests — greenfield, scaffold готов"
 
 ### 4B.5. Проверка сборки
 
@@ -110,8 +110,8 @@ class CashflowService:
 ## Выход
 
 - Работоспособное окружение / инициализированный проект
-- `.agent/baseline-test-report.log` — результат прогона тестов
-- `.agent/setup-report.log` — лог установки зависимостей и сборки
+- `.agent/context/baseline-test-report.log` — результат прогона тестов
+- `.agent/context/setup-report.log` — лог установки зависимостей и сборки
 
 Обновить checkpoints.json: `phases.environment = "completed"`.
 
@@ -120,7 +120,7 @@ class CashflowService:
 - [ ] Зависимости установлены / проект инициализирован
 - [ ] Проект собирается / импортируется без ошибок
 - [ ] Baseline-тесты запущены, результат записан
-- [ ] `.agent/baseline-test-report.log` и `.agent/setup-report.log` созданы
+- [ ] `.agent/context/baseline-test-report.log` и `.agent/context/setup-report.log` созданы
 - [ ] checkpoints.json обновлён
 
 Если проект не собирается — **фаза считается проваленной**, checkpoints.json отмечает `phases.environment = "failed"`, управление возвращается пользователю.

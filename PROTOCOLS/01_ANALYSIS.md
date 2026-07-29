@@ -24,8 +24,7 @@
   "design": { "adr": false, "alternative_arch": false },
   "red_team": false,
   "risk_register": false,
-  "decomposition": { "invariant_tests": false },
-  "handoff": { "layer_structure": false }
+  "decomposition": { "invariant_tests": false }
 }
 ```
 
@@ -36,8 +35,7 @@
   "design": { "adr": true, "alternative_arch": true },
   "red_team": false,
   "risk_register": false,
-  "decomposition": { "invariant_tests": true },
-  "handoff": { "layer_structure": true }
+  "decomposition": { "invariant_tests": true }
 }
 ```
 
@@ -127,7 +125,7 @@
 
 ## Выход
 
-`.agent/analysis-report.md` по шаблону `TEMPLATES/analysis-report.md`.
+`.agent/context/analysis-report.md` по шаблону `TEMPLATES/analysis-report.md`.
 
 Обновить checkpoints.json: `phases.analysis = "completed"`. Если проект `greenfield`, также установить `project_type = "greenfield"`.
 
@@ -135,5 +133,5 @@
 
 - [ ] Тип проекта определён (existing / greenfield / scaffold)
 - [ ] Все соответствующие разделы (1.1–1.7) выполнены
-- [ ] `.agent/analysis-report.md` создан и заполнен
+- [ ] `.agent/context/analysis-report.md` создан и заполнен
 - [ ] checkpoints.json обновлён

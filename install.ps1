@@ -49,7 +49,7 @@ $RulesDir   = Join-Path $AgentDir "rules"
 $ArchiveDir = Join-Path $AgentDir "archive"
 $TempDir    = Join-Path $TargetPath ".temp"
 $VersionFile = Join-Path $MetaAgentSrc "VERSION"
-$Version = if (Test-Path $VersionFile) { Get-Content $VersionFile -Raw | ForEach-Object { $_.Trim() } } else { "?" }
+$Version = if (Test-Path $VersionFile) { Get-Content $VersionFile -Raw -Encoding UTF8 | ForEach-Object { $_.Trim() } } else { "?" }
 
 New-Item -ItemType Directory -Path $SrcDir -Force | Out-Null
 New-Item -ItemType Directory -Path $RulesDir -Force | Out-Null
@@ -60,12 +60,15 @@ Write-Host "Installing MetaAgent v$Version → $SrcDir"
 # --- create .temp/ and ensure .gitignore ---
 $GitIgnore = Join-Path $TargetPath ".gitignore"
 if (-not (Test-Path $GitIgnore -PathType Leaf)) {
-    ".temp/" | Out-File -FilePath $GitIgnore -Encoding utf8
+    $utf8 = [System.Text.Encoding]::UTF8
+    [System.IO.File]::WriteAllBytes($GitIgnore, $utf8.GetBytes(".temp/`n"))
     Write-Host "  [create] .gitignore (.temp/)"
 } else {
     $content = Get-Content $GitIgnore -Raw
     if ($content -notmatch '^\.temp/$') {
-        ".temp/" | Out-File -FilePath $GitIgnore -Encoding utf8 -Append
+        $existing = Get-Content $GitIgnore -Raw
+        $utf8 = [System.Text.Encoding]::UTF8
+        [System.IO.File]::WriteAllBytes($GitIgnore, $utf8.GetBytes($existing + ".temp/`n"))
         Write-Host "  [update] .gitignore (added .temp/)"
     } else {
         Write-Host "  [skip] .gitignore (.temp/ already present)"
@@ -124,53 +127,19 @@ Copy-File (Join-Path $MetaAgentSrc "install.ps1") $SrcDir
 
 # --- create / update AGENTS.md in root of target ---
 $AgentsMd = Join-Path $TargetPath "AGENTS.md"
-
-function New-AgentsMd {
-    param([string]$Path)
-@"
-# MetaAgent
-
-Этот проект использует [MetaAgent](.agent/src/META_AGENT_GUIDE.md) v$Version —
-набор инструкций для AI-агента.
-
-## Контекст MetaAgent
-
-| Ресурс | Путь |
-|--------|------|
-| Главная инструкция | `.agent/src/META_AGENT_GUIDE.md` |
-| Протоколы фаз | `.agent/src/PROTOCOLS/` |
-| Шаблоны артефактов | `.agent/src/TEMPLATES/` |
-| Границы (что разрешено/запрещено) | `.agent/src/BOUNDARIES.md` |
-| Правила проекта | `.agent/rules/project-rules.md` |
-| Примеры работы | `.agent/src/WORKFLOW.md` |
-| Версия | `.agent/src/VERSION` |
-
-## Состояние сессии (если инициализировано)
-
-| Артефакт | Путь |
-|----------|------|
-| Чекпоинты сессии | `.agent/checkpoints.json` |
-| Манифест задач | `.agent/task-manifest.json` |
-| Сводка для exec-агента | `.agent/handoff-summary.md` |
-| Анализ репозитория | `.agent/analysis-report.md` |
-
-## Для исполнительного агента
-
-1. **Прочитай** `.agent/src/META_AGENT_GUIDE.md` — пойми жизненный цикл MetaAgent.
-2. **Прочитай** `.agent/src/BOUNDARIES.md` — соблюдай границы.
-3. **Прочитай** `.agent/rules/project-rules.md` — выполни пользовательские правила.
-4. **Проверь** `.agent/checkpoints.json` — если существует, используй как состояние сессии.
-5. **Проверь** `.agent/task-manifest.json` — если существует, выполняй задачи по порядку.
-6. Если `.agent/` не инициализирован или устарел — запусти `install.ps1 -Update` для
-   обновления исходников MetaAgent до актуальной версии.
-"@
-}
+$templatePath = Join-Path $MetaAgentSrc "AGENTS.template.md"
 
 if (-not (Test-Path $AgentsMd -PathType Leaf)) {
-    New-AgentsMd $AgentsMd | Out-File -FilePath $AgentsMd -Encoding utf8
+    $template = Get-Content $templatePath -Raw -Encoding UTF8
+    $content = $template.Replace("{VERSION}", $Version)
+    $utf8 = [System.Text.Encoding]::UTF8
+    [System.IO.File]::WriteAllBytes($AgentsMd, $utf8.GetBytes($content))
     Write-Host "  [create] AGENTS.md"
 } elseif ($Update) {
-    New-AgentsMd $AgentsMd | Out-File -FilePath $AgentsMd -Encoding utf8
+    $template = Get-Content $templatePath -Raw -Encoding UTF8
+    $content = $template.Replace("{VERSION}", $Version)
+    $utf8 = [System.Text.Encoding]::UTF8
+    [System.IO.File]::WriteAllBytes($AgentsMd, $utf8.GetBytes($content))
     Write-Host "  [update] AGENTS.md"
 } else {
     Write-Host "  [skip] AGENTS.md (exists, use -Update to overwrite)"

@@ -107,6 +107,8 @@ $DecisionsDir = Join-Path $AgentDir "decisions"
 $TasksDir     = Join-Path $AgentDir "tasks"
 $ContextDir   = Join-Path $AgentDir "context"
 $ArchiveDir   = Join-Path $AgentDir "archive"
+$RequestsDir    = Join-Path $AgentDir "requests"
+$RoadmapDir     = Join-Path $AgentDir "roadmap"
 $TempDir    = Join-Path $TargetPath ".temp"
 
 $DirList = @(
@@ -116,6 +118,10 @@ $DirList = @(
     (Join-Path $ArchiveDir "tasks"),
     (Join-Path $ArchiveDir "decisions"),
     (Join-Path $ArchiveDir "checkpoints"),
+    (Join-Path $RequestsDir "active"),
+    (Join-Path $RequestsDir "archive"),
+    $RoadmapDir,
+    (Join-Path $RoadmapDir "archive"),
     $TempDir
 )
 

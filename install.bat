@@ -33,6 +33,8 @@ set "AGENT_DIR=%TARGET_PATH%\.agent"
 set "SRC_DIR=%AGENT_DIR%\src"
 set "RULES_DIR=%AGENT_DIR%\rules"
 set "ARCHIVE_DIR=%AGENT_DIR%\archive"
+set "REQUESTS_DIR=%AGENT_DIR%\requests"
+set "ROADMAP_DIR=%AGENT_DIR%\roadmap"
 set "TEMP_DIR=%TARGET_PATH%\.temp"
 
 set "VERSION=?"
@@ -45,6 +47,10 @@ if exist "%METAAGENT_SRC%\VERSION" (
 mkdir "%SRC_DIR%" 2>nul
 mkdir "%RULES_DIR%" 2>nul
 mkdir "%ARCHIVE_DIR%" 2>nul
+mkdir "%REQUESTS_DIR%\active" 2>nul
+mkdir "%REQUESTS_DIR%\archive" 2>nul
+mkdir "%ROADMAP_DIR%" 2>nul
+mkdir "%ROADMAP_DIR%\archive" 2>nul
 mkdir "%TEMP_DIR%" 2>nul
 
 echo Installing MetaAgent v%VERSION% -^> %SRC_DIR%

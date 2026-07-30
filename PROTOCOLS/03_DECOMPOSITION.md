@@ -10,6 +10,7 @@
 - `.agent/context/design-report.md` (опционально — для greenfield/scaffold)
 - `.agent/decisions/*.md` (опционально)
 - `.agent/context/risk-register.md` (опционально)
+- `.agent/roadmap/sources.md` (опционально — из фазы ROADMAP)
 - `.agent/metaagent-request.md` (конфигурация сессии)
 - Цель пользователя (из checkpoints.json)
 - `.agent/checkpoints.json` (фаза decomposition: pending)
@@ -33,7 +34,14 @@
 - Затрагивает 5+ файлов
 - Содержит союзы "и", "а также", "после чего"
 
-### 3.3. Структура задачи
+### 3.3. Учёт roadmap
+
+Если существует `.agent/roadmap/sources.md`:
+- Сверить задачи с roadmap-приоритетами
+- Задачи из roadmap получают приоритет P0-P3 в соответствии с sources.md
+- Задачи без явного источника получают `origin: "decomposition"`
+
+### 3.4. Структура задачи
 
 Каждая задача содержит:
 
@@ -44,12 +52,20 @@
 | `description` | Описание (как и зачем) | "Создать SQLAlchemy модель..." |
 | `type` | Тип задачи | `feature`, `refactor`, `test`, `fix`, `config`, `design`, `docs` |
 | `status` | Статус задачи | `pending`, `in_progress`, `completed`, `failed`, `archived` |
+| `origin` | Источник задачи | `roadmap:filename`, `adr:NNN`, `user:direct`, `agent:analysis`, `decomposition` |
 | `files` | Список файлов, которые нужно создать/изменить | `["app/models/user.py"]` |
 | `depends_on` | ID задач, от которых зависит | `[]` или `["T0"]` |
 | `acceptance_criteria` | Список критериев приёмки (3-5 пунктов) | `["Модель проходит миграцию"]` |
 | `context` | Доп. информация (ссылки на доки, примеры, релевантные секции из design-report) | `"Смотри app/models/base.py"` |
 
-### 3.4. Типы задач
+`origin` связывает задачу с источником:
+- `roadmap:{filename}` — из FUTURE/ или roadmap плана
+- `adr:{NNN}` — из Architecture Decision Record
+- `user:direct` — напрямую от пользователя
+- `agent:analysis` — выявлено агентом при анализе
+- `decomposition` — создано при декомпозиции без внешнего источника
+
+### 3.5. Типы задач (нумерация сдвинута)
 
 | Тип | Описание |
 |---|---|
@@ -62,7 +78,7 @@
 | `docs` | Документация |
 | `invariant` | Тест, проверяющий архитектурный инвариант (см. 3.7) |
 
-### 3.5. Зелёная декомпозиция (для greenfield/scaffold)
+### 3.6. Зелёная декомпозиция (для greenfield/scaffold)
 
 Если есть `.agent/context/design-report.md` — задачи формируются на основе группировки из дизайна:
 
@@ -71,14 +87,14 @@
 3. **Tn+1: tests** — тесты на каждый модуль (можно в составе feature-задачи)
 4. **Tn+2: polish** — документация, форматирование, финальная проверка
 
-### 3.6. Сортировка
+### 3.7. Сортировка
 
 Задачи в манифесте располагаются в порядке выполнения:
 1. Сначала задачи без зависимостей
 2. Потом те, чьи зависимости уже выполнены
 3. Последними — задачи с наибольшим числом зависимостей
 
-### 3.7. Executable Invariants (если config.invariant_tests = yes)
+### 3.8. Executable Invariants (если config.invariant_tests = yes)
 
 Для каждого ADR (из `.agent/decisions/`) создать задачу типа `invariant` — тест, проверяющий архитектурное правило.
 
@@ -126,8 +142,10 @@
 
 - [ ] Цель разбита на атомарные задачи
 - [ ] Для каждой задачи указаны acceptance criteria
+- [ ] Для каждой задачи указан origin (источник)
 - [ ] Для каждой задачи указаны affected files
 - [ ] Зависимости между задачами корректны (нет циклов)
+- [ ] Задачи сверены с roadmap приоритетами (если sources.md существует)
 - [ ] Invariant-задачи созданы для каждого ADR (если config требует)
 - [ ] `.agent/tasks/manifest.json` и `.agent/tasks/manifest.md` созданы
 - [ ] checkpoints.json обновлён

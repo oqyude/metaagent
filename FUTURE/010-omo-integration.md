@@ -4,7 +4,7 @@
 
 ## Проблема
 
-MetaAgent v2.0 имеет структурированный `.agent/` с правилами, решениями, задачами и контекстом. Но нет исполняющего движка, который гарантированно читает эти артефакты перед работой. OMO (oh-my-opencode) — идеальный движок, но его состояние живёт только локально в `.omo/`.
+MetaAgent v3.0 имеет структурированный `.agent/` с правилами, решениями, задачами, контекстом и командами on-demand. Но нет исполняющего движка, который гарантированно читает эти артефакты перед работой. OMO (oh-my-opencode) — идеальный движок, но его состояние живёт только локально в `.omo/`.
 
 ## Идея
 
@@ -18,7 +18,7 @@ OMO читает `.agent/` перед работой, пишет в `.agent/` п
 | Аспект | `.agent/` (MetaAgent) | `.omo/` (OMO) |
 |--------|----------------------|----------------|
 | Persistence | Коммитится в репозиторий | Только локально |
-| Содержимое | Rules, ADRs, task manifest, контекст | Boulder, планы, кэш сессий |
+| Содержимое | Rules, ADRs, task manifest, контекст, requests, roadmap | Boulder, планы, кэш сессий |
 | Аудитория | Любой AI-агент (Claude, GPT, OMO) | Только OMO |
 | Время жизни | Всё время проекта | Сессия |
 
@@ -33,12 +33,14 @@ OMO читает `.agent/` перед работой, пишет в `.agent/` п
 4. Если есть релевантные ADR — добавить как context
 5. Проверить `.agent/tasks/manifest.json`
 6. Если есть pending задачи — предложить их перед новыми
+7. Проверить `.agent/context/project-state.md` — актуальный слепок
+8. Проверить `.agent/requests/active/` — если есть ready_for_review, предложить METASTATE
 
 ### 2. Todo-манифест sync
 
 OMO todowrite ↔ `.agent/tasks/manifest.json`:
 
-- **PUSH**: задача завершена OMO → обновить `.agent/tasks/manifest.json`
+- **PUSH**: задача завершена OMO → обновить `.agent/tasks/manifest.json` (status: completed) + создать request
 - **PULL**: OMO стартует → прочитать `.agent/tasks/manifest.json`
 - Конфликты: `last_updated` — кто позже, тот прав
 
@@ -46,9 +48,8 @@ OMO todowrite ↔ `.agent/tasks/manifest.json`:
 
 После архитектурного решения от Oracle:
 1. Oracle выдал рекомендацию
-2. OMO: "Записать как ADR?"
-3. При подтверждении — `.agent/decisions/NNN-slug.md`
-4. Обновить `.agent/decisions/index.json`
+2. OMO: "Записать как ADR?" (вызов команды `/adr`)
+3. При подтверждении — `.agent/decisions/NNN-slug.md` + обновить `index.json`
 
 ### 4. Skill: agent-metadata
 
@@ -60,7 +61,8 @@ load_skills=["agent-metadata"]
 
 Skill содержит:
 - Структуру `.agent/` и обязательные поля
-- Команды создания ADR, обновления манифеста
+- Цикл фаз (INIT → ANALYSE → ROADMAP → DESIGN → DECOMPOSITION → EXECUTION → METASTATE → HANDOFF)
+- Команды on-demand (adr, red-team, risk-register, alt-arch, invariant-tests)
 - Правила валидации
 - Шаблоны
 
@@ -70,9 +72,11 @@ Skill содержит:
 
 ```json
 {
-  "metaagent_version": "2.0.0",
+  "metaagent_version": "3.0.0",
   "session_id": "ses_...",
   "goal": "...",
+  "project_type": "existing | greenfield | scaffold",
+  "phases": { ... },
   "last_task_id": "T3",
   "context_hashes": {
     "rules": "sha256_of_rules",
@@ -89,17 +93,19 @@ Skill содержит:
 |------|-----------|-------------------|
 | INIT | OMO создаёт `.agent/` | install.sh/ps1 |
 | ANALYSE | explore + librarian → `.agent/context/` | Агент сам сканирует |
-| DESIGN | Oracle создаёт ADR → `.agent/decisions/` | Агент пишет design-report |
+| DESIGN | Oracle пишет design-report, пользователь вызывает /adr | Агент пишет design-report |
 | DECOMPOSITION | todowrite sync → `.agent/tasks/manifest.json` | Ручное создание |
-| SETUP | OMO build/test команды | Штатные средства |
+| EXECUTION | OMO build/test/commit + request | То же |
+| METASTATE | OMO: ревью requests → архивация → handoff-summary | Агент вручную |
 | HANDOFF | `.agent/checkpoints.json` финализируется | То же |
 
 ## Что не меняется
 
 - BOUNDARIES.md — концепция валидна
 - Архивация (HANDOFF) — остаётся
-- Depth scale (1-10) — адаптируется: depth >= 5 = OMO создаёт ADRs
+- **Depth scale убрана в v3.0** — больше нет порогов depth для команд. Команды вызываются явно.
 - Разделение meta/exec — OMO берёт обе роли (Sisyphus как meta, deep/quick как exec)
+- Команды (`/adr`, `/red-team`, ...) — загружаются как skills, доступны OMO по явному вызову
 
 ## FUTURE планы MetaAgent в контексте OMO
 
@@ -117,6 +123,6 @@ Skill содержит:
 
 ## Зависимости
 
-- MetaAgent v2.0 (текущая версия после реструктуризации)
+- MetaAgent v3.0 (текущая версия, упрощённая модель: цикл + команды)
 - OMO с поддержкой pre-execution hooks
 - Skill system для agent-metadata

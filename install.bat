@@ -70,11 +70,13 @@ if not exist "%TARGET_PATH%\.gitignore" (
 )
 
 REM --- copy files ---
-call :copy_file "%METAAGENT_SRC%META_AGENT_GUIDE.md" "%SRC_DIR%"
+call :copy_file "%METAAGENT_SRC%GUIDE.md" "%SRC_DIR%"
 call :copy_file "%METAAGENT_SRC%BOUNDARIES.md" "%SRC_DIR%"
+call :copy_file "%METAAGENT_SRC%CHANGELOG.md" "%SRC_DIR%"
 call :copy_file "%METAAGENT_SRC%WORKFLOW.md" "%SRC_DIR%"
 call :copy_file "%METAAGENT_SRC%VERSION" "%SRC_DIR%"
 call :copy_dir  "%METAAGENT_SRC%PROTOCOLS" "%SRC_DIR%"
+call :copy_dir  "%METAAGENT_SRC%COMMANDS"  "%SRC_DIR%"
 call :copy_dir  "%METAAGENT_SRC%TEMPLATES" "%SRC_DIR%"
 call :copy_file "%METAAGENT_SRC%install.sh" "%SRC_DIR%"
 call :copy_file "%METAAGENT_SRC%install.ps1" "%SRC_DIR%"

@@ -162,20 +162,20 @@ copy_file() {
     local dst="$dst_dir/$name"
     if [[ ! -f "$src" ]]; then
         skip "$name (source not found)"
-        ((SKIP_COUNT += 1))
+        SKIP_COUNT=$((SKIP_COUNT + 1))
         return
     fi
     if [[ "$UPDATE" == true ]] || [[ ! -f "$dst" ]]; then
         if cp "$src" "$dst"; then
             ok "$name"
-            ((COPY_COUNT++))
+            COPY_COUNT=$((COPY_COUNT + 1))
         else
             fail "$name"
-            ((FAIL_COUNT++))
+            FAIL_COUNT=$((FAIL_COUNT + 1))
         fi
     else
         skip "$name (exists, use --update to overwrite)"
-        ((SKIP_COUNT += 1))
+        SKIP_COUNT=$((SKIP_COUNT + 1))
     fi
 }
 
@@ -185,22 +185,22 @@ copy_dir() {
     local dst="$dst_dir/$name"
     if [[ ! -d "$src" ]]; then
         skip "$name/ (source not found)"
-        ((SKIP_COUNT += 1))
+        SKIP_COUNT=$((SKIP_COUNT + 1))
         return
     fi
     mkdir -p "$dst"
     if [[ "$UPDATE" == true ]]; then
         if cp -rf "$src"/* "$dst/" 2>/dev/null; then
             ok "$name/"
-            ((COPY_COUNT++))
+            COPY_COUNT=$((COPY_COUNT + 1))
         else
             fail "$name/ (partial copy)"
-            ((FAIL_COUNT++))
+            FAIL_COUNT=$((FAIL_COUNT + 1))
         fi
     else
         cp -rn "$src"/* "$dst/" 2>/dev/null || true
         ok "$name/"
-        ((COPY_COUNT++))
+        COPY_COUNT=$((COPY_COUNT + 1))
     fi
 }
 
@@ -287,7 +287,7 @@ elif [[ "$UPDATE" == true ]]; then
     ok "AGENTS.md updated"
 else
     skip "AGENTS.md (exists, use --update to overwrite)"
-    ((SKIP_COUNT += 1))
+    SKIP_COUNT=$((SKIP_COUNT + 1))
 fi
 
 # --- summary -------------------------------------------------------------
